@@ -8,12 +8,18 @@ var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 const catalogRouter = require("./routes/catalog"); //Import routes for "catalog" area of site
 
+const compression = require("compression");
+const helmet = require("helmet");
+
+// Create the Express application object
 var app = express();
+
+app.use(helmet());
 
 // create connection to mongoDB Atlas
 const mongoose = require("mongoose");
-const mongoDB =
-  "mongodb://m001-student:m001-mongodb-basics@ac-w4rdr9v-shard-00-00.5kplvwk.mongodb.net:27017,ac-w4rdr9v-shard-00-01.5kplvwk.mongodb.net:27017,ac-w4rdr9v-shard-00-02.5kplvwk.mongodb.net:27017/local_library?ssl=true&replicaSet=atlas-hvcrgy-shard-0&authSource=admin&retryWrites=true&w=majority";
+const mongoDB = process.env.DB_URL
+  
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
@@ -26,6 +32,9 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use(compression()); // Compress all routes
+
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
